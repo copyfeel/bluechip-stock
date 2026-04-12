@@ -1,5 +1,5 @@
 // Railway 백엔드 URL (나중에 수정할 예정)                                                                     
-const API_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = 'https://bluechip-stock-production.up.railway.app';
 const analyzeBtn = document.getElementById('analyzeBtn');
 const handsomeListBtn = document.getElementById('handsomeListBtn');
 // const apiKeyInput = document.getElementById('apiKey'); // 이제 필요 없음
