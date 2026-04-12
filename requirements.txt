@@ -1,7 +1,7 @@
 flask==2.3.3
-flask-cors==4.0.0
-yfinance==1.2.0
-pandas==1.5.3
-beautifulsoup4==4.12.2
-requests==2.31.0
-finance-datareader
+  flask-cors==4.0.0
+  yfinance==0.2.18
+  pandas==2.2.0
+  beautifulsoup4==4.12.2
+  requests==2.31.0
+  finance-datareader
