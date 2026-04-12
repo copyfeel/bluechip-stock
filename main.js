@@ -1,3 +1,5 @@
+// Railway 백엔드 URL (나중에 수정할 예정)                                                                     
+const API_BASE_URL = 'http://localhost:8001';
 const analyzeBtn = document.getElementById('analyzeBtn');
 const handsomeListBtn = document.getElementById('handsomeListBtn');
 // const apiKeyInput = document.getElementById('apiKey'); // 이제 필요 없음
@@ -116,7 +118,7 @@ tickersInput.addEventListener('input', debounce(async () => {
     return;
   }
   try {
-    const res = await fetch(`http://127.0.0.1:8001/api/search?q=${encodeURIComponent(last)}`);
+    const res = await fetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(last)}`);
     const items = await res.json();
     if (items.length > 0) {
       showDropdown(items);
@@ -136,7 +138,7 @@ document.addEventListener('click', (e) => {
 });
 
 const fetchAPI = async (symbol) => {
-  const url = `http://127.0.0.1:8001/api/stock?symbol=${encodeURIComponent(symbol)}`;
+  const url = `${API_BASE_URL}/api/stock?symbol=${encodeURIComponent(symbol)}`;
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`서버 오류: ${response.status} ${response.statusText}`);
