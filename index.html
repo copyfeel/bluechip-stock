@@ -18,8 +18,8 @@
           <h2>⚙️ 설정 및 종목 검색</h2>
           <div class="input-group" style="position: relative;">
             <label for="tickers">분석할 KOSPI & KOSDAQ 종목 (한글 종목명 또는 종목코드, 예: 삼성전자, 005930)</label>
-            <div style="position: relative; flex: 1;">
-              <input type="text" id="tickers" placeholder="예: 삼성전자, 현대차, 035420" />
+            <div style="position: relative;">
+              <input type="text" id="tickers" placeholder="예: 삼성전자, 현대차, 035420" style="width: 100%; padding-right: 3rem;" />
               <button id="clearBtn" class="clear-btn" onclick="clearInput()" style="display: none;">✕</button>
             </div>
             <div id="autocomplete" class="autocomplete-dropdown hidden"></div>
