@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KOSPI 우량주식 선정 앱</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-NmsEVCdo.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CvxIxYlP.css">
+  </head>
+  <body>
+    <div id="app">
+      <header class="glass-header">
+        <h1>📉 KOSPI 우량주식 탐색기</h1>
+        <p>10가지 깐깐한 투자 기준으로 진짜 우량주를 찾아보세요</p>
+      </header>
+      <main class="container">
+        <section class="glass-panel config-panel">
+          <h2>⚙️ 설정 및 종목 검색</h2>
+          <div class="input-group">
+            <label for="apiKey">Alpha Vantage API Key</label>
+            <input type="password" id="apiKey" placeholder="API Key를 입력하세요" />
+          </div>
+          <div class="input-group">
+            <label for="tickers">KOSPI 종목 코드 (콤마로 구분, 예: 005930)</label>
+            <input type="text" id="tickers" placeholder="예: 005930, 035420, 000660" />
+            <small style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.8rem;">
+              * Alpha Vantage 무료 API는 호출 제한(일 25회)이 있어 종목당 1~3개의 엔드포인트를 호출하므로 소량 검색을 권장합니다.
+            </small>
+          </div>
+          <button id="analyzeBtn" class="primary-btn">분석 시작하기</button>
+        </section>
+
+        <section class="glass-panel criteria-panel">
+          <h2>✅ 10대 선정 기준</h2>
+          <ul class="criteria-list">
+            <li>1. 당기순이익 최근 2년 연속 흑자</li>
+            <li>2. 부채비율 100% 이하</li>
+            <li>3. 유보비율 500% 이상</li>
+            <li>4. 최대주주 지분율 10~80% 사이</li>
+            <li>5. 매출성장율 5~10% 이상</li>
+            <li>6. 모회사 동일 조건 부합 (현 앱에선 계열사 평가 생략 가능)</li>
+            <li>7. 영업이익율 10% 이상</li>
+            <li>8. ROE 15% 이상</li>
+            <li>9. PER 20 이하</li>
+            <li>10. 배당수익율 2~5% 이상</li>
+          </ul>
+        </section>
+
+        <section class="glass-panel results-panel">
+          <h2>📊 분석 결과</h2>
+          <div id="loading" class="hidden">Alpha Vantage 데이터를 가져오고 있습니다... (약간의 시간이 소요될 수 있습니다)</div>
+          <div id="resultsGrid" class="results-grid"></div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
