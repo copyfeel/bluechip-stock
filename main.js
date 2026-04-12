@@ -2,6 +2,7 @@
 const API_BASE_URL = 'https://bluechip-stock-production.up.railway.app';
 const analyzeBtn = document.getElementById('analyzeBtn');
 const handsomeListBtn = document.getElementById('handsomeListBtn');
+const watchlistBtn = document.getElementById('watchlistBtn');
 // const apiKeyInput = document.getElementById('apiKey'); // 이제 필요 없음
 const tickersInput = document.getElementById('tickers');
 const clearBtn = document.getElementById('clearBtn');
@@ -20,6 +21,8 @@ tickersInput.addEventListener('input', () => {
 });
 
 const getHandsomeList = () => JSON.parse(localStorage.getItem('handsome_list') || '[]');
+const getWatchlist = () => JSON.parse(localStorage.getItem('watchlist') || '[]');
+
 const saveToHandsomeList = (symbol) => {
   const list = getHandsomeList();
   if(!list.includes(symbol)) {
@@ -53,6 +56,20 @@ window.toggleHandsome = (symbol, isAdd) => {
     }
     const card = document.getElementById(`card-${symbol}`);
     if (card) card.classList.remove('is-handsome');
+  }
+};
+
+window.toggleWatchlist = (symbol, isChecked) => {
+  let list = getWatchlist();
+  if (isChecked) {
+    if (!list.includes(symbol)) list.push(symbol);
+  } else {
+    list = list.filter(s => s !== symbol);
+  }
+  localStorage.setItem('watchlist', JSON.stringify(list));
+  const card = document.getElementById(`card-${symbol}`);
+  if (card) {
+    isChecked ? card.classList.add('is-watchlist') : card.classList.remove('is-watchlist');
   }
 };
 
@@ -175,6 +192,13 @@ const runAnalysis = async (mode) => {
       return;
     }
     symbols = list;
+  } else if (mode === 'WATCHLIST') {
+    const list = getWatchlist();
+    if (list.length === 0) {
+      alert('현재 저장된 관심종목이 없습니다. 먼저 종목을 분석하고 체크해주세요.');
+      return;
+    }
+    symbols = list;
   } else {
     if (!tickersStr) {
       alert('분석할 종목 코드를 입력해주세요. (예: 005930)');
@@ -191,6 +215,7 @@ const runAnalysis = async (mode) => {
   loadingDiv.classList.remove('hidden');
   analyzeBtn.disabled = true;
   handsomeListBtn.disabled = true;
+  watchlistBtn.disabled = true;
   
   try {
     for (const [index, symbol] of symbols.entries()) {
@@ -211,24 +236,31 @@ const runAnalysis = async (mode) => {
     loadingDiv.classList.add('hidden');
     analyzeBtn.disabled = false;
     handsomeListBtn.disabled = false;
+    watchlistBtn.disabled = false;
   }
 };
 
 analyzeBtn.addEventListener('click', () => runAnalysis('ALL'));
+watchlistBtn.addEventListener('click', () => runAnalysis('WATCHLIST'));
 handsomeListBtn.addEventListener('click', () => runAnalysis('HANDSOME'));
 
 function render5YearCard(symbol, name, data) {
   const yearsData = data.yearsData || [];
   const handsomeList = getHandsomeList();
   const isHandsome = handsomeList.includes(symbol);
+  const watchlist = getWatchlist();
+  const isWatchlist = watchlist.includes(symbol);
 
   const card = document.createElement('div');
   card.id = `card-${symbol}`;
-  card.className = 'stock-card' + (isHandsome ? ' is-handsome' : '');
-  
+  card.className = 'stock-card' + (isHandsome ? ' is-handsome' : '') + (isWatchlist ? ' is-watchlist' : '');
+
   let html = `
     <div class="stock-header">
-      <div class="stock-title">${name} </div>
+      <div class="stock-title" style="display:flex; align-items:center; gap:0.5rem;">
+        <input type="checkbox" class="watchlist-checkbox" id="watch-${symbol}" ${isWatchlist ? 'checked' : ''} onchange="toggleWatchlist('${symbol}', this.checked)" />
+        ${name}
+      </div>
       <div class="stock-ticker">${symbol}</div>
     </div>
   `;

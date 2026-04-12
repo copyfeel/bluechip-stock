@@ -142,6 +142,26 @@ body {
   transform: translateY(-2px);
 }
 
+.half-secondary-btn {
+  flex: 0.5;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.watchlist-checkbox {
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  accent-color: #ffd600;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.stock-card.is-watchlist {
+  border-color: #ffd600;
+  background: rgba(255, 214, 0, 0.06);
+}
+
 .criteria-list {
   list-style: none;
   padding: 0;
