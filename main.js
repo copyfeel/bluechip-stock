@@ -103,6 +103,7 @@ const showDropdown = (items, onSelect) => {
 const hideAutocomplete = () => {
   hideDropdown();
 };
+window.hideAutocomplete = hideAutocomplete;
 
 // 입력란 자동완성 이벤트
 tickersInput.addEventListener('input', debounce(async () => {
