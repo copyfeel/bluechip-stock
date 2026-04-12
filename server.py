@@ -368,8 +368,8 @@ def get_stock():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+load_stock_map()
+
 if __name__ == '__main__':
-      import os                                                                                                  
-      port = int(os.environ.get('PORT', 8001))
-      load_stock_map()                                                                                           
-      app.run(port=port, debug=False)
+    port = int(os.environ.get('PORT', 8001))
+    app.run(host='0.0.0.0', port=port, debug=False)
