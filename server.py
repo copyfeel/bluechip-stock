@@ -244,6 +244,10 @@ def safe_get(df, keys, date):
             return float(val)
     return None
 
+@app.route('/api/health')
+def health():
+    return jsonify({"status": "ok"})
+
 @app.route('/api/search')
 def search_stock():
     """자동완성용 종목 검색"""
@@ -284,8 +288,16 @@ def get_stock():
         except Exception as e:
             print(f"[WARN] t.info failed: {e}")
 
-        financials = t.financials
-        balance = t.balance_sheet
+        financials = None
+        balance = None
+        try:
+            financials = t.financials
+        except Exception as e:
+            print(f"[WARN] t.financials failed: {e}")
+        try:
+            balance = t.balance_sheet
+        except Exception as e:
+            print(f"[WARN] t.balance_sheet failed: {e}")
 
         # 디버그: 실제 yfinance 컬럼명 출력
         if financials is not None and not financials.empty:
