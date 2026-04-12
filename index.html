@@ -10,15 +10,18 @@
   <body>
     <div id="app">
       <header class="glass-header">
-        <h1>📉 KOSPI 우량주식 탐색기</h1>
+        <h1>📈 KOSPI & KOSDAQ 미남주식</h1>
         <p>10가지 깐깐한 투자 기준으로 5년치 데이터를 직접 분석하세요</p>
       </header>
       <main class="container">
         <section class="glass-panel config-panel">
           <h2>⚙️ 설정 및 종목 검색</h2>
           <div class="input-group" style="position: relative;">
-            <label for="tickers">분석할 KOSPI 종목 (한글 종목명 또는 종목코드, 예: 삼성전자, 005930)</label>
-            <input type="text" id="tickers" placeholder="예: 삼성전자, 현대차, 035420" />
+            <label for="tickers">분석할 KOSPI & KOSDAQ 종목 (한글 종목명 또는 종목코드, 예: 삼성전자, 005930)</label>
+            <div style="position: relative; flex: 1;">
+              <input type="text" id="tickers" placeholder="예: 삼성전자, 현대차, 035420" />
+              <button id="clearBtn" class="clear-btn" onclick="clearInput()" style="display: none;">✕</button>
+            </div>
             <div id="autocomplete" class="autocomplete-dropdown hidden"></div>
             <small style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.8rem;">
               * 내부 Python(yfinance) 서버를 통해 구동되므로 추가 API Key가 필요하지 않습니다.

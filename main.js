@@ -4,8 +4,20 @@ const analyzeBtn = document.getElementById('analyzeBtn');
 const handsomeListBtn = document.getElementById('handsomeListBtn');
 // const apiKeyInput = document.getElementById('apiKey'); // 이제 필요 없음
 const tickersInput = document.getElementById('tickers');
+const clearBtn = document.getElementById('clearBtn');
 const loadingDiv = document.getElementById('loading');
 const resultsGrid = document.getElementById('resultsGrid');
+
+window.clearInput = () => {
+  tickersInput.value = '';
+  tickersInput.focus();
+  clearBtn.style.display = 'none';
+};
+
+// 입력값이 있으면 X 버튼 표시
+tickersInput.addEventListener('input', () => {
+  clearBtn.style.display = tickersInput.value.trim() ? 'block' : 'none';
+});
 
 const getHandsomeList = () => JSON.parse(localStorage.getItem('handsome_list') || '[]');
 const saveToHandsomeList = (symbol) => {
