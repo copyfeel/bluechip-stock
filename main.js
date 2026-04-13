@@ -375,7 +375,6 @@ function buildCardHTML(symbol, name, data) {
 }
 
 function render5YearCard(symbol, name, data) {
-  const yearsData = data.yearsData || [];
   const handsomeList = getHandsomeList();
   const isHandsome = handsomeList.includes(symbol);
   const watchlist = getWatchlist();
