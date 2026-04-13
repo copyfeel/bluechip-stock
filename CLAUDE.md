@@ -1,7 +1,7 @@
 # KOSPI & KOSDAQ 미남종목 탐색기 - 프로젝트 문서
 
-**최종 수정일**: 2026-04-13  
-**상태**: 배포 완료 (Netlify + Railway)
+**최종 수정일**: 2026-04-13 (2차 업데이트)  
+**상태**: 배포 완료 (Netlify + Railway) + 차트 기능 추가 구현 중
 
 ---
 
@@ -89,6 +89,17 @@ bluechip-stock/
 | 데이터 캐시 | `stockDataCache` 전역으로 종목별 데이터 저장 |
 | 리팩토링 | `buildCardHTML()` 분리로 모달/패널에서 재사용 |
 
+### Phase 7: 캔들차트 + 거래량 + 이동평균선 (2026-04-13)
+| 작업 | 기능 |
+|------|-----|
+| 차트 라이브러리 | Lightweight Charts v4 (TradingView) CDN 추가 |
+| 백엔드 엔드포인트 | `/api/chart` — 캔들, 거래량, MA(5,20,60,120,240) 반환 |
+| 카드 탭 | "재무분석" / "📈 차트" 탭 전환 |
+| 기간 선택 | 일/주/월/년 버튼 (interval: 1d/1wk/1mo/3mo) |
+| MA 토글 | 5종류 MA 체크박스로 표시/숨김 |
+| 모바일 최적화 | 반응형 CSS, 터치 지원 |
+| 데이터 동기화 | 캔들차트 + 거래량 차트 시간축 동기화 |
+
 ---
 
 ## 주요 API 엔드포인트
@@ -100,6 +111,7 @@ bluechip-stock/
 | `/api/health` | GET | Railway 수면 방지용 헬스체크 |
 | `/api/search?q=` | GET | 한글명/종목코드 자동완성 검색 |
 | `/api/stock?symbol=` | GET | 종목 5년 재무 데이터 조회 (yfinance) |
+| `/api/chart?symbol=&interval=` | GET | 캔들(OHLCV) + 거래량 + MA 데이터<br/>(interval: 1d, 1wk, 1mo, 3mo) |
 
 ### 프론트엔드 (main.js)
 
@@ -231,18 +243,20 @@ UI:
 
 ### 우선순위: MEDIUM
 
-#### 3. 차트/그래프
-**설명**: 5년 추이를 시각화 (Chart.js 또는 Recharts)
+#### 3. 캔들차트 + 거래량 + MA (✅ 완료 - Phase 7)
+**설명**: 상장 이후 전체 기간 캔들차트 + 거래량 + 5종류 이동평균선
 
-```
-예시:
-- 당기순이익 추이 (막대 그래프)
-- ROE 추이 (꺾은선 그래프)
-- 부채비율 추이 (면적 그래프)
-```
+**구현**:
+- Lightweight Charts v4 (TradingView)
+- 기간: 일/주/월/년 선택
+- MA: 5, 20, 60, 120, 240일선 체크박스 토글
+- 시간축 동기화 (캔들 + 거래량)
 
-**라이브러리**: Chart.js (경량)  
-**파일**: `main.js` + `style.css` + `index.html`
+**파일**: `server.py` (/api/chart) + `main.js` + `style.css` + `index.html`
+
+**다음 단계**:
+- 보조지표 추가 (Bollinger Bands, MACD, RSI 등)
+- 재무 데이터 차트 (당기순이익, ROE 추이 등)
 
 ---
 
@@ -461,5 +475,5 @@ VITE_API_URL=https://bluechip-stock-production.up.railway.app (선택)
 ---
 
 **작성자**: Claude Code  
-**마지막 수정**: 2026-04-13  
-**상태**: 진행 중 (추가 기능 개발 단계)
+**마지막 수정**: 2026-04-13 (Phase 7 캔들차트 추가)  
+**상태**: 차트 기능 배포 예정, 이후 보조지표 추가 계획

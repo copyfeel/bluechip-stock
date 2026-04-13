@@ -12,6 +12,9 @@ const resultsGrid = document.getElementById('resultsGrid');
 // 슬라이딩 패널용 데이터 캐시
 const stockDataCache = {};
 
+// 차트 인스턴스 관리
+const chartInstances = {};
+
 // 모달 창 열기/닫기
 window.openCriteriaModal = () => {
   document.getElementById('criteriaModal').classList.remove('hidden');
@@ -39,6 +42,180 @@ window.openSlidePanel = (symbol) => {
 window.closeSlidePanel = () => {
   document.getElementById('slidePanel').classList.remove('open');
   document.getElementById('slideOverlay').classList.remove('open');
+};
+
+// 탭 전환
+window.switchTab = (symbol, tab) => {
+  const financeTab = document.getElementById(`tab-finance-${symbol}`);
+  const chartTab = document.getElementById(`tab-chart-${symbol}`);
+  const tabBtns = document.querySelectorAll(`[onclick*="switchTab('${symbol}"]`);
+
+  tabBtns.forEach(btn => btn.classList.remove('active'));
+
+  if (tab === 'finance') {
+    financeTab.classList.remove('hidden');
+    chartTab.classList.add('hidden');
+    tabBtns[0].classList.add('active');
+  } else {
+    financeTab.classList.add('hidden');
+    chartTab.classList.remove('hidden');
+    tabBtns[1].classList.add('active');
+    // 차트가 처음 로드되면 로드
+    if (!chartInstances[symbol]) {
+      loadChart(symbol, '1d');
+    }
+  }
+};
+
+// 차트 데이터 로드 및 렌더링
+window.loadChart = async (symbol, interval = '1d') => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/chart?symbol=${encodeURIComponent(symbol)}&interval=${interval}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const container = document.getElementById(`chart-${symbol}`);
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // Lightweight Charts 초기화
+    const chart = LightweightCharts.createChart(container, {
+      layout: {
+        background: { color: '#2b2b2b' },
+        textColor: '#f0f2f5'
+      },
+      grid: {
+        vertLines: { color: '#333' },
+        horzLines: { color: '#333' }
+      },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      rightPriceScale: { borderColor: '#444' },
+      timeScale: {
+        borderColor: '#444',
+        timeVisible: true,
+        secondsVisible: false
+      },
+      width: container.offsetWidth,
+      height: 300
+    });
+
+    // 캔들 시리즈
+    const candleSeries = chart.addCandlestickSeries({
+      upColor: '#26a69a',
+      downColor: '#ef5350',
+      borderVisible: false,
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350'
+    });
+    candleSeries.setData(data.candles);
+
+    // MA 라인 추가
+    const MA_COLORS = {
+      '5': '#ff9800',
+      '20': '#e91e63',
+      '60': '#2196f3',
+      '120': '#9c27b0',
+      '240': '#00bcd4'
+    };
+    const maLines = {};
+    for (const [period, color] of Object.entries(MA_COLORS)) {
+      if (data.ma[period] && data.ma[period].length > 0) {
+        const line = chart.addLineSeries({
+          color,
+          lineWidth: 1.5,
+          priceLineVisible: false,
+          title: `MA${period}`
+        });
+        line.setData(data.ma[period]);
+        maLines[period] = { series: line, visible: true };
+      }
+    }
+
+    // 거래량 차트 (별도)
+    const volContainer = document.getElementById(`volume-${symbol}`);
+    volContainer.innerHTML = '';
+    const volChart = LightweightCharts.createChart(volContainer, {
+      layout: {
+        background: { color: '#2b2b2b' },
+        textColor: '#f0f2f5'
+      },
+      grid: {
+        vertLines: { color: '#333' },
+        horzLines: { color: '#333' }
+      },
+      width: volContainer.offsetWidth,
+      height: 100,
+      rightPriceScale: { borderColor: '#444' },
+      timeScale: { borderColor: '#444' }
+    });
+    const volSeries = volChart.addHistogramSeries({
+      color: '#26a69a'
+    });
+    volSeries.setData(data.volume);
+
+    // 두 차트 동기화
+    chart.timeScale().subscribeVisibleTimeRangeChange((newVisibleTimeRange) => {
+      volChart.timeScale().setVisibleRange(newVisibleTimeRange);
+    });
+
+    // 차트 인스턴스 저장
+    chartInstances[symbol] = {
+      chart,
+      candleSeries,
+      maLines,
+      volChart,
+      volSeries,
+      data
+    };
+
+    // 최신 데이터로 이동
+    chart.timeScale().scrollToRealTime();
+
+    // 리사이즈 대응
+    const ro = new ResizeObserver(() => {
+      if (container.offsetWidth > 0) {
+        chart.resize(container.offsetWidth, 300);
+      }
+      if (volContainer.offsetWidth > 0) {
+        volChart.resize(volContainer.offsetWidth, 100);
+      }
+    });
+    ro.observe(container);
+
+    // 기간 버튼 업데이트
+    const intervalBtns = document.querySelectorAll(`[onclick*="loadChart('${symbol}"]`);
+    intervalBtns.forEach(btn => {
+      const intervalValue = btn.getAttribute('onclick').match(/'([^']+)'\s*\)/)[1];
+      if (intervalValue === interval) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+  } catch (err) {
+    console.error('차트 로드 오류:', err);
+    const container = document.getElementById(`chart-${symbol}`);
+    if (container) {
+      container.innerHTML = `<div style="color: var(--danger); padding: 1rem; text-align: center;">차트 데이터를 불러올 수 없습니다.</div>`;
+    }
+  }
+};
+
+// MA 라인 토글
+window.toggleMA = (symbol, period, visible) => {
+  const instance = chartInstances[symbol];
+  if (!instance || !instance.maLines[period]) return;
+
+  const line = instance.maLines[period].series;
+  if (visible) {
+    line.applyOptions({ visible: true });
+    instance.maLines[period].visible = true;
+  } else {
+    line.applyOptions({ visible: false });
+    instance.maLines[period].visible = false;
+  }
 };
 
 window.clearInput = () => {
@@ -308,6 +485,13 @@ function buildCardHTML(symbol, name, data) {
       </div>
       <div class="stock-ticker">${symbol}</div>
     </div>
+
+    <div class="card-tabs">
+      <button class="tab-btn active" onclick="switchTab('${symbol}', 'finance')">📊 재무분석</button>
+      <button class="tab-btn" onclick="switchTab('${symbol}', 'chart')">📈 차트</button>
+    </div>
+
+    <div id="tab-finance-${symbol}" class="tab-content">
   `;
 
   if (yearsData.length === 0) {
@@ -363,11 +547,30 @@ function buildCardHTML(symbol, name, data) {
   }
 
   html += `
-    <div class="btn-group">
-      ${isHandsome
-        ? `<button id="btn-${symbol}" class="action-btn remove-btn" onclick="toggleHandsome('${symbol}', false)">🗑 미남종목 삭제</button>`
-        : `<button id="btn-${symbol}" class="action-btn" onclick="toggleHandsome('${symbol}', true)">💖 미남종목으로 저장</button>`
-      }
+      <div class="btn-group">
+        ${isHandsome
+          ? `<button id="btn-${symbol}" class="action-btn remove-btn" onclick="toggleHandsome('${symbol}', false)">🗑 미남종목 삭제</button>`
+          : `<button id="btn-${symbol}" class="action-btn" onclick="toggleHandsome('${symbol}', true)">💖 미남종목으로 저장</button>`
+        }
+      </div>
+    </div>
+
+    <div id="tab-chart-${symbol}" class="tab-content hidden">
+      <div class="interval-tabs">
+        <button class="interval-btn active" onclick="loadChart('${symbol}', '1d')">일</button>
+        <button class="interval-btn" onclick="loadChart('${symbol}', '1wk')">주</button>
+        <button class="interval-btn" onclick="loadChart('${symbol}', '1mo')">월</button>
+        <button class="interval-btn" onclick="loadChart('${symbol}', '3mo')">년</button>
+      </div>
+      <div class="ma-toggles">
+        <label><input type="checkbox" class="ma-check" data-period="5" checked onchange="toggleMA('${symbol}', 5, this.checked)"> MA5</label>
+        <label><input type="checkbox" class="ma-check" data-period="20" checked onchange="toggleMA('${symbol}', 20, this.checked)"> MA20</label>
+        <label><input type="checkbox" class="ma-check" data-period="60" checked onchange="toggleMA('${symbol}', 60, this.checked)"> MA60</label>
+        <label><input type="checkbox" class="ma-check" data-period="120" onchange="toggleMA('${symbol}', 120, this.checked)"> MA120</label>
+        <label><input type="checkbox" class="ma-check" data-period="240" onchange="toggleMA('${symbol}', 240, this.checked)"> MA240</label>
+      </div>
+      <div id="chart-${symbol}" class="chart-container"></div>
+      <div id="volume-${symbol}" class="volume-container"></div>
     </div>
   `;
 

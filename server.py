@@ -368,6 +368,77 @@ def get_stock():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/chart')
+def get_chart_data():
+    """캔들 + 거래량 + 이동평균선 데이터 조회"""
+    symbol = request.args.get('symbol')
+    interval = request.args.get('interval', '1d')  # 1d, 1wk, 1mo, 3mo
+
+    if not symbol:
+        return jsonify({"error": "No symbol provided"}), 400
+
+    resolved_symbol = resolve_ticker(symbol)
+    if resolved_symbol is None:
+        return jsonify({"error": f"'{symbol}' 종목을 찾을 수 없습니다."}), 404
+
+    try:
+        t = yf.Ticker(resolved_symbol)
+        df = t.history(period='max', interval=interval)
+
+        if df.empty:
+            return jsonify({"candles": [], "volume": [], "ma": {}})
+
+        # 시간대 제거 (UTC → naive datetime)
+        df.index = df.index.tz_localize(None)
+        timestamps = [int(d.timestamp()) for d in df.index]
+
+        # OHLCV 캔들 데이터
+        candles = []
+        for t_val, row in zip(timestamps, df.itertuples()):
+            candles.append({
+                "time": t_val,
+                "open": float(row.Open) if pd.notna(row.Open) else None,
+                "high": float(row.High) if pd.notna(row.High) else None,
+                "low": float(row.Low) if pd.notna(row.Low) else None,
+                "close": float(row.Close) if pd.notna(row.Close) else None
+            })
+
+        # 거래량 (상승일 초록, 하락일 빨강)
+        volume = []
+        for t_val, row in zip(timestamps, df.itertuples()):
+            volume.append({
+                "time": t_val,
+                "value": float(row.Volume) if pd.notna(row.Volume) else 0,
+                "color": "#26a69a" if row.Close >= row.Open else "#ef5350"
+            })
+
+        # 이동평균선 (5, 20, 60, 120, 240)
+        ma_data = {}
+        for period in [5, 20, 60, 120, 240]:
+            df[f'ma{period}'] = df['Close'].rolling(window=period).mean()
+            ma_series = df[f'ma{period}'].dropna()
+            ma_list = []
+            for d, v in ma_series.items():
+                ma_list.append({
+                    "time": int(d.timestamp()),
+                    "value": float(round(v, 2)) if pd.notna(v) else None
+                })
+            ma_data[str(period)] = ma_list
+
+        return jsonify({
+            "symbol": resolved_symbol,
+            "interval": interval,
+            "candles": candles,
+            "volume": volume,
+            "ma": ma_data
+        })
+
+    except Exception as e:
+        print(f"[ERROR] Chart data error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
 load_stock_map()
 
 if __name__ == '__main__':

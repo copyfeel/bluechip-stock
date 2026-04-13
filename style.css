@@ -307,6 +307,154 @@ body {
   font-size: 1.2rem;
 }
 
+/* ========== 카드 탭 ========== */
+.card-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: var(--accent);
+}
+
+.tab-btn.active {
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--accent);
+}
+
+/* 탭 콘텐츠 */
+.tab-content {
+  display: block;
+}
+
+.tab-content.hidden {
+  display: none;
+}
+
+/* ========== 차트 관련 ========== */
+.interval-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.interval-btn {
+  background: rgba(60, 60, 60, 0.8);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.interval-btn:hover {
+  background: rgba(80, 80, 80, 0.9);
+}
+
+.interval-btn.active {
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* MA 토글 */
+.ma-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+}
+
+.ma-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.ma-toggles input[type="checkbox"] {
+  cursor: pointer;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+}
+
+/* 차트 컨테이너 */
+.chart-container {
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.volume-container {
+  width: 100%;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .card-tabs {
+    margin: 0.75rem 0;
+    gap: 0.3rem;
+  }
+
+  .tab-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .chart-container {
+    height: 240px;
+  }
+
+  .volume-container {
+    height: 80px;
+  }
+
+  .interval-tabs {
+    gap: 0.3rem;
+  }
+
+  .interval-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .ma-toggles {
+    gap: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .ma-toggles label {
+    gap: 0.2rem;
+  }
+}
+
 .criteria-list {
   list-style: none;
   padding: 0;
