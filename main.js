@@ -97,7 +97,7 @@ window.loadChart = async (symbol, interval = '1d') => {
         secondsVisible: false
       },
       width: container.offsetWidth,
-      height: 300
+      height: container.offsetHeight || 450
     });
 
     // 캔들 시리즈
@@ -125,10 +125,11 @@ window.loadChart = async (symbol, interval = '1d') => {
           color,
           lineWidth: 1.5,
           priceLineVisible: false,
-          title: `MA${period}`
+          title: `MA${period}`,
+          visible: false
         });
         line.setData(data.ma[period]);
-        maLines[period] = { series: line, visible: true };
+        maLines[period] = { series: line, visible: false };
       }
     }
 
@@ -145,7 +146,7 @@ window.loadChart = async (symbol, interval = '1d') => {
         horzLines: { color: '#333' }
       },
       width: volContainer.offsetWidth,
-      height: 100,
+      height: volContainer.offsetHeight || 120,
       rightPriceScale: { borderColor: '#444' },
       timeScale: { borderColor: '#444' }
     });
@@ -175,10 +176,10 @@ window.loadChart = async (symbol, interval = '1d') => {
     // 리사이즈 대응
     const ro = new ResizeObserver(() => {
       if (container.offsetWidth > 0) {
-        chart.resize(container.offsetWidth, 300);
+        chart.resize(container.offsetWidth, container.offsetHeight || 450);
       }
       if (volContainer.offsetWidth > 0) {
-        volChart.resize(volContainer.offsetWidth, 100);
+        volChart.resize(volContainer.offsetWidth, volContainer.offsetHeight || 120);
       }
     });
     ro.observe(container);
@@ -198,7 +199,7 @@ window.loadChart = async (symbol, interval = '1d') => {
     console.error('차트 로드 오류:', err);
     const container = document.getElementById(`chart-${symbol}`);
     if (container) {
-      container.innerHTML = `<div style="color: var(--danger); padding: 1rem; text-align: center;">차트 데이터를 불러올 수 없습니다.</div>`;
+      container.innerHTML = `<div style="color: var(--danger); padding: 1rem; text-align: center;">차트 데이터를 불러올 수 없습니다.<br><small style="opacity:0.7">${err.message}</small></div>`;
     }
   }
 };
@@ -563,9 +564,9 @@ function buildCardHTML(symbol, name, data) {
         <button class="interval-btn" onclick="loadChart('${symbol}', '3mo')">년</button>
       </div>
       <div class="ma-toggles">
-        <label><input type="checkbox" class="ma-check" data-period="5" checked onchange="toggleMA('${symbol}', 5, this.checked)"> MA5</label>
-        <label><input type="checkbox" class="ma-check" data-period="20" checked onchange="toggleMA('${symbol}', 20, this.checked)"> MA20</label>
-        <label><input type="checkbox" class="ma-check" data-period="60" checked onchange="toggleMA('${symbol}', 60, this.checked)"> MA60</label>
+        <label><input type="checkbox" class="ma-check" data-period="5" onchange="toggleMA('${symbol}', 5, this.checked)"> MA5</label>
+        <label><input type="checkbox" class="ma-check" data-period="20" onchange="toggleMA('${symbol}', 20, this.checked)"> MA20</label>
+        <label><input type="checkbox" class="ma-check" data-period="60" onchange="toggleMA('${symbol}', 60, this.checked)"> MA60</label>
         <label><input type="checkbox" class="ma-check" data-period="120" onchange="toggleMA('${symbol}', 120, this.checked)"> MA120</label>
         <label><input type="checkbox" class="ma-check" data-period="240" onchange="toggleMA('${symbol}', 240, this.checked)"> MA240</label>
       </div>

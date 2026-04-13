@@ -383,31 +383,29 @@ def get_chart_data():
 
     try:
         t = yf.Ticker(resolved_symbol)
-        df = t.history(period='max', interval=interval)
+        df = t.history(period='10y', interval=interval)
 
         if df.empty:
             return jsonify({"candles": [], "volume": [], "ma": {}})
 
         # 시간대 제거 (UTC → naive datetime)
-        df.index = df.index.tz_localize(None)
-        timestamps = [int(d.timestamp()) for d in df.index]
+        if df.index.tz is not None:
+            df.index = df.index.tz_convert(None)
 
-        # OHLCV 캔들 데이터
+        # OHLCV 캔들 + 거래량 (한 번에)
         candles = []
-        for t_val, row in zip(timestamps, df.itertuples()):
+        volume = []
+        for row in df.itertuples():
+            date_str = row.Index.strftime('%Y-%m-%d')
             candles.append({
-                "time": t_val,
+                "time": date_str,
                 "open": float(row.Open) if pd.notna(row.Open) else None,
                 "high": float(row.High) if pd.notna(row.High) else None,
                 "low": float(row.Low) if pd.notna(row.Low) else None,
                 "close": float(row.Close) if pd.notna(row.Close) else None
             })
-
-        # 거래량 (상승일 초록, 하락일 빨강)
-        volume = []
-        for t_val, row in zip(timestamps, df.itertuples()):
             volume.append({
-                "time": t_val,
+                "time": date_str,
                 "value": float(row.Volume) if pd.notna(row.Volume) else 0,
                 "color": "#26a69a" if row.Close >= row.Open else "#ef5350"
             })
@@ -420,7 +418,7 @@ def get_chart_data():
             ma_list = []
             for d, v in ma_series.items():
                 ma_list.append({
-                    "time": int(d.timestamp()),
+                    "time": d.strftime('%Y-%m-%d'),
                     "value": float(round(v, 2)) if pd.notna(v) else None
                 })
             ma_data[str(period)] = ma_list
