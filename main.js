@@ -82,19 +82,24 @@ window.loadChart = async (symbol, interval = '1d') => {
     // Lightweight Charts 초기화
     const chart = LightweightCharts.createChart(container, {
       layout: {
-        background: { color: '#2b2b2b' },
-        textColor: '#a8e063'
+        background: { color: '#ffffff' },
+        textColor: '#222222'
       },
       grid: {
-        vertLines: { color: '#333' },
-        horzLines: { color: '#333' }
+        vertLines: { color: '#e8e8e8' },
+        horzLines: { color: '#e8e8e8' }
       },
       crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-      rightPriceScale: { borderColor: '#444' },
+      rightPriceScale: {
+        borderColor: '#cccccc',
+        textColor: '#666666'
+      },
       timeScale: {
-        borderColor: '#444',
+        borderColor: '#cccccc',
         timeVisible: true,
-        secondsVisible: false
+        secondsVisible: false,
+        fixLeftEdge: true,
+        fixRightEdge: true
       },
       width: container.offsetWidth,
       height: container.offsetHeight || 450
@@ -109,6 +114,7 @@ window.loadChart = async (symbol, interval = '1d') => {
       wickDownColor: '#ef5350'
     });
     candleSeries.setData(data.candles);
+    chart.timeScale().fitContent();
 
     // MA 라인 추가
     const MA_COLORS = {
@@ -138,22 +144,30 @@ window.loadChart = async (symbol, interval = '1d') => {
     volContainer.innerHTML = '';
     const volChart = LightweightCharts.createChart(volContainer, {
       layout: {
-        background: { color: '#2b2b2b' },
-        textColor: '#a8e063'
+        background: { color: '#ffffff' },
+        textColor: '#888888'
       },
       grid: {
-        vertLines: { color: '#333' },
-        horzLines: { color: '#333' }
+        vertLines: { color: '#e8e8e8' },
+        horzLines: { color: '#e8e8e8' }
       },
       width: volContainer.offsetWidth,
-      height: volContainer.offsetHeight || 120,
-      rightPriceScale: { borderColor: '#444' },
-      timeScale: { borderColor: '#444' }
+      height: volContainer.offsetHeight || 200,
+      rightPriceScale: {
+        borderColor: '#cccccc',
+        textColor: '#666666'
+      },
+      timeScale: {
+        borderColor: '#cccccc',
+        fixLeftEdge: true,
+        fixRightEdge: true
+      }
     });
     const volSeries = volChart.addHistogramSeries({
       color: '#26a69a'
     });
     volSeries.setData(data.volume);
+    volChart.timeScale().fitContent();
 
     // 두 차트 동기화
     chart.timeScale().subscribeVisibleTimeRangeChange((newVisibleTimeRange) => {
