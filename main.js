@@ -108,10 +108,10 @@ window.loadChart = async (symbol, interval = '1d') => {
     // 캔들 시리즈
     const candleSeries = chart.addCandlestickSeries({
       upColor: '#26a69a',
-      downColor: '#ef5350',
+      downColor: '#1565c0',
       borderVisible: false,
       wickUpColor: '#26a69a',
-      wickDownColor: '#ef5350'
+      wickDownColor: '#1565c0'
     });
     candleSeries.setData(data.candles);
     chart.timeScale().fitContent();
