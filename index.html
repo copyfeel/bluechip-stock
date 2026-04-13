@@ -32,22 +32,9 @@
             <button id="watchlistBtn" class="secondary-btn half-secondary-btn">⭐관심종목</button>
             <button id="handsomeListBtn" class="secondary-btn half-secondary-btn">💎미남종목</button>
           </div>
-        </section>
-
-        <section class="glass-panel criteria-panel">
-          <h2>✅미남종목 선정기준</h2>
-          <ul class="criteria-list">
-            <li>1. 당기순이익 최근 2년 연속 흑자</li>
-            <li>2. 부채비율 100% 이하</li>
-            <li>3. 유보비율 500% 이상</li>
-            <li>4. 최대주주 지분율 10~80%</li>
-            <li>5. 매출성장율 5~10% 이상</li>
-            <li>6. 영업이익율 10% 이상</li>
-            <li>7. ROE 15% 이상</li>
-            <li>8. PER 20 이하</li>
-            <li>9. 배당수익율 2~5% 이상</li>
-            <li>10. 사용자가 직접지정</li>
-          </ul>
+          <div style="text-align: right; margin-top: 0.5rem;">
+            <button onclick="openCriteriaModal()" class="criteria-link-btn">✅미남종목 선정기준 보기</button>
+          </div>
         </section>
 
         <section class="glass-panel results-panel">
@@ -57,6 +44,38 @@
         </section>
       </main>
     </div>
+
+    <!-- 선정기준 모달 -->
+    <div id="criteriaModal" class="modal-overlay hidden" onclick="closeCriteriaModal()">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2>✅미남종목 선정기준</h2>
+          <button class="modal-close" onclick="closeCriteriaModal()">✕</button>
+        </div>
+        <ul class="criteria-list">
+          <li>1. 당기순이익 최근 2년 연속 흑자</li>
+          <li>2. 부채비율 100% 이하</li>
+          <li>3. 유보비율 500% 이상</li>
+          <li>4. 최대주주 지분율 10~80%</li>
+          <li>5. 매출성장율 5~10% 이상</li>
+          <li>6. 영업이익율 10% 이상</li>
+          <li>7. ROE 15% 이상</li>
+          <li>8. PER 20 이하</li>
+          <li>9. 배당수익율 2~5% 이상</li>
+          <li>10. 사용자가 직접지정</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 슬라이딩 패널 -->
+    <div id="slideOverlay" class="slide-overlay" onclick="closeSlidePanel()"></div>
+    <div id="slidePanel" class="slide-panel">
+      <div class="slide-panel-header">
+        <button class="modal-close" onclick="closeSlidePanel()">✕ 닫기</button>
+      </div>
+      <div id="slidePanelContent"></div>
+    </div>
+
     <script type="module" src="./main.js"></script>
   </body>
 </html>

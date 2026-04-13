@@ -9,6 +9,38 @@ const clearBtn = document.getElementById('clearBtn');
 const loadingDiv = document.getElementById('loading');
 const resultsGrid = document.getElementById('resultsGrid');
 
+// 슬라이딩 패널용 데이터 캐시
+const stockDataCache = {};
+
+// 모달 창 열기/닫기
+window.openCriteriaModal = () => {
+  document.getElementById('criteriaModal').classList.remove('hidden');
+};
+
+window.closeCriteriaModal = () => {
+  document.getElementById('criteriaModal').classList.add('hidden');
+};
+
+// 슬라이딩 패널 열기/닫기
+window.openSlidePanel = (symbol) => {
+  const cached = stockDataCache[symbol];
+  if (!cached) return;
+  const content = document.getElementById('slidePanelContent');
+  content.innerHTML = '';
+  const card = document.createElement('div');
+  card.id = `panel-card-${cached.symbol}`;
+  card.className = 'stock-card' + (getHandsomeList().includes(cached.symbol) ? ' is-handsome' : '') + (getWatchlist().includes(cached.symbol) ? ' is-watchlist' : '');
+  card.innerHTML = buildCardHTML(cached.symbol, cached.name, cached.data);
+  content.appendChild(card);
+  document.getElementById('slidePanel').classList.add('open');
+  document.getElementById('slideOverlay').classList.add('open');
+};
+
+window.closeSlidePanel = () => {
+  document.getElementById('slidePanel').classList.remove('open');
+  document.getElementById('slideOverlay').classList.remove('open');
+};
+
 window.clearInput = () => {
   tickersInput.value = '';
   tickersInput.focus();
@@ -225,7 +257,11 @@ const runAnalysis = async (mode) => {
         const data = await fetchAPI(symbol);
         const resolvedSymbol = data.symbol || symbol;
         const displayName = data.name || resolvedSymbol;
-        render5YearCard(resolvedSymbol, displayName, data);
+        if (mode === 'WATCHLIST' || mode === 'HANDSOME') {
+          renderListItem(resolvedSymbol, displayName, data);
+        } else {
+          render5YearCard(resolvedSymbol, displayName, data);
+        }
       } catch (err) {
         resultsGrid.innerHTML += `<div class="error-msg" style="grid-column: 1 / -1; padding: 1rem;">${symbol} 분석 오류: ${err.message}</div>`;
       }
@@ -244,16 +280,25 @@ analyzeBtn.addEventListener('click', () => runAnalysis('ALL'));
 watchlistBtn.addEventListener('click', () => runAnalysis('WATCHLIST'));
 handsomeListBtn.addEventListener('click', () => runAnalysis('HANDSOME'));
 
-function render5YearCard(symbol, name, data) {
+function renderListItem(symbol, name, data) {
+  stockDataCache[symbol] = { symbol, name, data };
+  const item = document.createElement('div');
+  item.className = 'stock-list-item';
+  item.innerHTML = `
+    <span class="item-name">${name}</span>
+    <span class="item-symbol">${symbol}</span>
+    <span class="item-arrow">›</span>
+  `;
+  item.onclick = () => openSlidePanel(symbol);
+  resultsGrid.appendChild(item);
+}
+
+function buildCardHTML(symbol, name, data) {
   const yearsData = data.yearsData || [];
   const handsomeList = getHandsomeList();
   const isHandsome = handsomeList.includes(symbol);
   const watchlist = getWatchlist();
   const isWatchlist = watchlist.includes(symbol);
-
-  const card = document.createElement('div');
-  card.id = `card-${symbol}`;
-  card.className = 'stock-card' + (isHandsome ? ' is-handsome' : '') + (isWatchlist ? ' is-watchlist' : '');
 
   let html = `
     <div class="stock-header">
@@ -319,13 +364,26 @@ function render5YearCard(symbol, name, data) {
 
   html += `
     <div class="btn-group">
-      ${isHandsome 
+      ${isHandsome
         ? `<button id="btn-${symbol}" class="action-btn remove-btn" onclick="toggleHandsome('${symbol}', false)">🗑 미남종목 삭제</button>`
         : `<button id="btn-${symbol}" class="action-btn" onclick="toggleHandsome('${symbol}', true)">💖 미남종목으로 저장</button>`
       }
     </div>
   `;
 
-  card.innerHTML = html;
+  return html;
+}
+
+function render5YearCard(symbol, name, data) {
+  const yearsData = data.yearsData || [];
+  const handsomeList = getHandsomeList();
+  const isHandsome = handsomeList.includes(symbol);
+  const watchlist = getWatchlist();
+  const isWatchlist = watchlist.includes(symbol);
+
+  const card = document.createElement('div');
+  card.id = `card-${symbol}`;
+  card.className = 'stock-card' + (isHandsome ? ' is-handsome' : '') + (isWatchlist ? ' is-watchlist' : '');
+  card.innerHTML = buildCardHTML(symbol, name, data);
   resultsGrid.appendChild(card);
 }
