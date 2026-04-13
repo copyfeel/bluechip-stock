@@ -407,7 +407,7 @@ def get_chart_data():
             volume.append({
                 "time": date_str,
                 "value": float(row.Volume) if pd.notna(row.Volume) else 0,
-                "color": "#26a69a" if row.Close >= row.Open else "#1565c0"
+                "color": "#ef5350" if row.Close >= row.Open else "#1565c0"
             })
 
         # 이동평균선 (5, 20, 60, 120, 240)
