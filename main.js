@@ -83,7 +83,7 @@ window.loadChart = async (symbol, interval = '1d') => {
     const chart = LightweightCharts.createChart(container, {
       layout: {
         background: { color: '#2b2b2b' },
-        textColor: '#f0f2f5'
+        textColor: '#a8e063'
       },
       grid: {
         vertLines: { color: '#333' },
@@ -139,7 +139,7 @@ window.loadChart = async (symbol, interval = '1d') => {
     const volChart = LightweightCharts.createChart(volContainer, {
       layout: {
         background: { color: '#2b2b2b' },
-        textColor: '#f0f2f5'
+        textColor: '#a8e063'
       },
       grid: {
         vertLines: { color: '#333' },
